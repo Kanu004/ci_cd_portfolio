@@ -7,7 +7,7 @@ on:
   workflow_run:
     workflows: [CI]
     types: [completed]
-    branches: [main]
+    branches: [main, master]
 
 jobs:
   deploy:
@@ -76,7 +76,7 @@ jobs:
         run: |
           echo "## Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Commit:** \`${{ github.event.workflow_run.head_sha }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Branch:** main" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Branch:** master" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Environment:** production" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "Add \`DOCKER_USERNAME\` and \`DOCKER_PASSWORD\` secrets to push images to Docker Hub." >> "$GITHUB_STEP_SUMMARY"
