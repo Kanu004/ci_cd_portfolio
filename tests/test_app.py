@@ -1,6 +1,7 @@
 import pytest
 
 from app import create_app
+from app.routes import PORTFOLIO
 
 
 @pytest.fixture
@@ -13,7 +14,7 @@ def client():
 def test_index_returns_200(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert b"Alex Developer" in response.data
+    assert PORTFOLIO["name"].encode() in response.data
 
 
 def test_about_page(client):
