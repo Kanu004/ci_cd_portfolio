@@ -3,9 +3,9 @@ from flask import Blueprint, render_template
 bp = Blueprint("main", __name__)
 
 PORTFOLIO = {
-    "name": "Alex Developer",
-    "title": "Python Developer & DevOps Enthusiast",
-    "email": "alex@example.com",
+    "name": "Kanika Thakur",
+    "title": "Python Developer and AI/ML Analst",
+    "email": "kanika@gmail.com",
     "github": "https://github.com/example",
     "linkedin": "https://linkedin.com/in/example",
     "bio": (
