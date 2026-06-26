@@ -3,7 +3,7 @@ from flask import Blueprint, render_template
 bp = Blueprint("main", __name__)
 
 PORTFOLIO = {
-    "name": "Kanika Thakur",
+    "name": "Kanika",
     "title": "Python Developer and AI/ML Analst",
     "email": "kanika@gmail.com",
     "github": "https://github.com/example",
