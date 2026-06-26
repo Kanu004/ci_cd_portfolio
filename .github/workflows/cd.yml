@@ -1,5 +1,5 @@
 # CD Pipeline — Continuous Deployment
-# Runs after the CI workflow succeeds on the main branch.
+# Runs after CI succeeds. Deploys the app to Render (live URL).
 
 name: CD
 
@@ -44,39 +44,31 @@ jobs:
           print('Smoke test passed')
           "
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-        continue-on-error: true
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            portfolio:latest
-            portfolio:${{ github.event.workflow_run.head_sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-        continue-on-error: true
+      - name: Deploy to Render
+        env:
+          DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo "::error::Missing secret RENDER_DEPLOY_HOOK_URL — add it in GitHub repo Settings → Secrets."
+            exit 1
+          fi
+          curl -fsS -X POST "$DEPLOY_HOOK"
+          echo "Render deploy triggered."
 
       - name: Deploy info
         id: deploy-info
         run: |
-          echo "url=https://github.com/${{ github.repository }}" >> "$GITHUB_OUTPUT"
-          echo "Deployed commit: ${{ github.event.workflow_run.head_sha }}"
+          URL="${{ secrets.RENDER_SERVICE_URL }}"
+          if [ -z "$URL" ]; then
+            echo "::warning::Set RENDER_SERVICE_URL secret to show your live site URL here."
+            URL="https://github.com/${{ github.repository }}"
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Live URL: $URL"
 
       - name: Deployment summary
         run: |
           echo "## Deployment Summary" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Commit:** \`${{ github.event.workflow_run.head_sha }}\`" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Branch:** master" >> "$GITHUB_STEP_SUMMARY"
-          echo "- **Environment:** production" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "Add \`DOCKER_USERNAME\` and \`DOCKER_PASSWORD\` secrets to push images to Docker Hub." >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Live URL:** ${{ steps.deploy-info.outputs.url }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Platform:** Render" >> "$GITHUB_STEP_SUMMARY"
